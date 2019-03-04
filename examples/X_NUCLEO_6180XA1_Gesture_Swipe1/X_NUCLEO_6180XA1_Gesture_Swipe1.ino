@@ -52,7 +52,15 @@
 #include <tof_gestures.h>
 #include <tof_gestures_SWIPE_1.h>
 
+#ifdef ARDUINO_SAM_DUE
+#define DEV_I2C Wire1
+#elif defined(ARDUINO_ARCH_STM32)
 #define DEV_I2C Wire
+#elif defined(ARDUINO_ARCH_AVR)
+#define DEV_I2C Wire
+#else
+#define DEV_I2C Wire
+#endif
 #define SerialPort Serial
 
 // Components.
@@ -76,6 +84,26 @@ void setup() {
 
   // Initialize serial for output.
   SerialPort.begin(115200);
+
+//NOTE: workaround in order to unblock the I2C bus on the Arduino Due
+#ifdef ARDUINO_SAM_DUE
+   pinMode(71, OUTPUT);
+   pinMode(70, OUTPUT);
+
+   for (int i = 0; i<10; i++){
+     digitalWrite(70, LOW);
+     delay(3);
+     digitalWrite(71, HIGH);
+     delay(3);
+     digitalWrite(70, HIGH);
+     delay(3);
+     digitalWrite(71, LOW);
+     delay(3);
+   }
+   pinMode(70, INPUT);
+   pinMode(71, INPUT);
+#endif
+//End of workaround
 
   // Initialize I2C bus.
   DEV_I2C.begin();
@@ -126,7 +154,7 @@ void loop() {
   {
     if(top_done == 0)
     {
-      int status = sensor_vl6180x_top->RangeGetMeasurementIfReady(&range_top);
+      sensor_vl6180x_top->RangeGetMeasurementIfReady(&range_top);
       if(range_top.errorStatus != 18)
       {
         top_done = 1;
@@ -148,5 +176,3 @@ void loop() {
       break;
   }
 }
-
-
