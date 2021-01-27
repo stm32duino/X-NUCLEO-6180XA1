@@ -64,12 +64,12 @@
 #define SerialPort Serial
 
 // Components.
-STMPE1600DigiOut *gpio0_top;
-STMPE1600DigiOut *gpio0_left;
-STMPE1600DigiOut *gpio0_right;
-VL6180X_X_NUCLEO_6180XA1 *sensor_vl6180x_top;
-VL6180X_X_NUCLEO_6180XA1 *sensor_vl6180x_left;
-VL6180X_X_NUCLEO_6180XA1 *sensor_vl6180x_right;
+STMPE1600DigiOut gpio0_top(&DEV_I2C, GPIO_12);
+STMPE1600DigiOut gpio0_left(&DEV_I2C, GPIO_14);
+STMPE1600DigiOut gpio0_right(&DEV_I2C, GPIO_15);
+VL6180X_X_NUCLEO_6180XA1 sensor_vl6180x_top(&DEV_I2C, &gpio0_top);
+VL6180X_X_NUCLEO_6180XA1 sensor_vl6180x_left(&DEV_I2C, &gpio0_left);
+VL6180X_X_NUCLEO_6180XA1 sensor_vl6180x_right(&DEV_I2C, &gpio0_right);
 
 // Gesture structure.
 Gesture_DIRSWIPE_1_Data_t gestureDirSwipeData;
@@ -108,36 +108,33 @@ void setup() {
   // Initialize I2C bus.
   DEV_I2C.begin();
 
-  // Create VL6180X top component.
-  gpio0_top = new STMPE1600DigiOut(&DEV_I2C, GPIO_12);
-  sensor_vl6180x_top = new VL6180X_X_NUCLEO_6180XA1(&DEV_I2C, gpio0_top, 0);
+  // Configure VL6180X top component.
+  sensor_vl6180x_top.begin();
   
   // Switch off VL6180X top component.
-  sensor_vl6180x_top->VL6180x_Off();
+  sensor_vl6180x_top.VL6180x_Off();
   
-  // Create VL6180X left component.
-  gpio0_left = new STMPE1600DigiOut(&DEV_I2C, GPIO_14);
-  sensor_vl6180x_left = new VL6180X_X_NUCLEO_6180XA1(&DEV_I2C, gpio0_left, 0);
+  // Configure VL6180X left component.
+  sensor_vl6180x_left.begin();
   
   // Switch off VL6180X left component.
-  sensor_vl6180x_left->VL6180x_Off();
+  sensor_vl6180x_left.VL6180x_Off();
   
-  // Create VL6180X right component.
-  gpio0_right = new STMPE1600DigiOut(&DEV_I2C, GPIO_15);
-  sensor_vl6180x_right = new VL6180X_X_NUCLEO_6180XA1(&DEV_I2C, gpio0_right, 0);
+  // Configure VL6180X right component.
+  sensor_vl6180x_right.begin();
   
   // Switch off VL6180X right component.
-  sensor_vl6180x_right->VL6180x_Off();
+  sensor_vl6180x_right.VL6180x_Off();
   
   // Initialize VL6180X left component.
-  status = sensor_vl6180x_left->InitSensor(0x12);
+  status = sensor_vl6180x_left.InitSensor(0x12);
   if(status)
   {
     SerialPort.println("Init sensor_vl6180x_left failed...");
   }
   
   // Initialize VL6180X right component.
-  status = sensor_vl6180x_right->InitSensor(0x13);
+  status = sensor_vl6180x_right.InitSensor(0x13);
   if(status)
   {
     SerialPort.println("Init sensor_vl6180x_right failed...");
@@ -153,8 +150,8 @@ void setup() {
 void loop() {
   int gesture_code;
   
-  sensor_vl6180x_left->RangeStartSingleShot();
-  sensor_vl6180x_right->RangeStartSingleShot();
+  sensor_vl6180x_left.RangeStartSingleShot();
+  sensor_vl6180x_right.RangeStartSingleShot();
   
   int left_done = 0;
   int right_done = 0;
@@ -163,7 +160,7 @@ void loop() {
   {
     if(left_done == 0)
     {
-      sensor_vl6180x_left->RangeGetMeasurementIfReady(&range_left);
+      sensor_vl6180x_left.RangeGetMeasurementIfReady(&range_left);
       if(range_left.errorStatus != 18)
       {
         left_done = 1;
@@ -172,7 +169,7 @@ void loop() {
     
     if(right_done == 0)
     {
-      sensor_vl6180x_right->RangeGetMeasurementIfReady(&range_right);
+      sensor_vl6180x_right.RangeGetMeasurementIfReady(&range_right);
       if(range_right.errorStatus != 18)
       {
         right_done = 1;
