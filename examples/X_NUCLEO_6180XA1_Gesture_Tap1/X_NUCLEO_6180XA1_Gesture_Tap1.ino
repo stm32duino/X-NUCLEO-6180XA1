@@ -64,12 +64,12 @@
 #define SerialPort Serial
 
 // Components.
-STMPE1600DigiOut *gpio0_top;
-STMPE1600DigiOut *gpio0_left;
-STMPE1600DigiOut *gpio0_right;
-VL6180X_X_NUCLEO_6180XA1 *sensor_vl6180x_top;
-VL6180X_X_NUCLEO_6180XA1 *sensor_vl6180x_left;
-VL6180X_X_NUCLEO_6180XA1 *sensor_vl6180x_right;
+STMPE1600DigiOut gpio0_top(&DEV_I2C, GPIO_12);
+STMPE1600DigiOut gpio0_left(&DEV_I2C, GPIO_14);
+STMPE1600DigiOut gpio0_right(&DEV_I2C, GPIO_15);
+VL6180X_X_NUCLEO_6180XA1 sensor_vl6180x_top(&DEV_I2C, &gpio0_top);
+VL6180X_X_NUCLEO_6180XA1 sensor_vl6180x_left(&DEV_I2C, &gpio0_left);
+VL6180X_X_NUCLEO_6180XA1 sensor_vl6180x_right(&DEV_I2C, &gpio0_right);
 
 // Gesture structure.
 Gesture_TAP_1_Data_t gestureTapData;
@@ -108,29 +108,26 @@ void setup() {
   // Initialize I2C bus.
   DEV_I2C.begin();
   
-  // Create VL6180X top component.
-  gpio0_top = new STMPE1600DigiOut(&DEV_I2C, GPIO_12);
-  sensor_vl6180x_top = new VL6180X_X_NUCLEO_6180XA1(&DEV_I2C, gpio0_top, 0);
+  // Configure VL6180X top component.
+  sensor_vl6180x_top.begin();
   
   // Switch off VL6180X top component.
-  sensor_vl6180x_top->VL6180x_Off();
+  sensor_vl6180x_top.VL6180x_Off();
   
-  // Create (if present) VL6180X left component.
-  gpio0_left = new STMPE1600DigiOut(&DEV_I2C, GPIO_14);
-  sensor_vl6180x_left = new VL6180X_X_NUCLEO_6180XA1(&DEV_I2C, gpio0_left, 0);
+  // Configure (if present) VL6180X left component.
+  sensor_vl6180x_left.begin();
   
   // Switch off (if present) VL6180X left component.
-  sensor_vl6180x_left->VL6180x_Off();
+  sensor_vl6180x_left.VL6180x_Off();
   
-  // Create VL6180X (if present) right component.
-  gpio0_right = new STMPE1600DigiOut(&DEV_I2C, GPIO_15);
-  sensor_vl6180x_right = new VL6180X_X_NUCLEO_6180XA1(&DEV_I2C, gpio0_right, 0);
+  // Configure VL6180X (if present) right component.
+  sensor_vl6180x_right.begin();
   
   // Switch off (if present) VL6180X right component.
-  sensor_vl6180x_right->VL6180x_Off();
+  sensor_vl6180x_right.VL6180x_Off();
   
   // Initialize VL6180X top component.
-  status = sensor_vl6180x_top->InitSensor(0x10);
+  status = sensor_vl6180x_top.InitSensor(0x10);
   if(status)
   {
     SerialPort.println("Init sensor_vl6180x_top failed...");
@@ -146,7 +143,7 @@ void setup() {
 void loop() {
   int gesture_code;
 
-  sensor_vl6180x_top->RangeStartSingleShot();
+  sensor_vl6180x_top.RangeStartSingleShot();
   
   int top_done = 0;
   
@@ -154,7 +151,7 @@ void loop() {
   {
     if(top_done == 0)
     {
-      sensor_vl6180x_top->RangeGetMeasurementIfReady(&range_top);
+      sensor_vl6180x_top.RangeGetMeasurementIfReady(&range_top);
       if(range_top.errorStatus != 18)
       {
         top_done = 1;

@@ -57,7 +57,7 @@ class VL6180X_X_NUCLEO_6180XA1 : public VL6180X
      * @param[in] pin_gpio1 pin Mbed InterruptIn PinName to be used as component GPIO_1 INT
      * @param[in] device address, 0x29 by default  
      */		
-    VL6180X_X_NUCLEO_6180XA1(TwoWire *i2c, STMPE1600DigiOut *pin, int pin_gpio1, uint8_t DevAddr=VL6180x_DEFAULT_DEVICE_ADDRESS) : VL6180X(i2c, -1, pin_gpio1, DevAddr)
+    VL6180X_X_NUCLEO_6180XA1(TwoWire *i2c, STMPE1600DigiOut *pin) : VL6180X(i2c, -1)
     {
        expgpio0 = pin;
     }  	 
@@ -67,6 +67,15 @@ class VL6180X_X_NUCLEO_6180XA1 : public VL6180X
     virtual ~VL6180X_X_NUCLEO_6180XA1(){}     
     /* warning: VL6180X_X_NUCLEO_6180XA1 class inherits from GenericSensor, RangeSensor and LightSensor, that haven`t a destructor.
        The warning should request to introduce a virtual destructor to make sure to delete the object */
+    int begin()
+    {
+       return expgpio0->begin();
+    }
+
+    int end()
+    {
+       return expgpio0->end();
+    }
 
 	/*** Interface Methods ***/	
 	/*** High level API ***/		
