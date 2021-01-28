@@ -53,9 +53,7 @@ class VL6180X_X_NUCLEO_6180XA1 : public VL6180X
  public:
     /** Constructor (STMPE1600DigiOut)
      * @param[in] i2c device I2C to be used for communication
-     * @param[in] &pin Gpio Expander STMPE1600DigiOut pin to be used as component GPIO_0 CE
-     * @param[in] pin_gpio1 pin Mbed InterruptIn PinName to be used as component GPIO_1 INT
-     * @param[in] device address, 0x29 by default  
+     * @param[in] pin shutdown pin to be used as component GPIO0
      */		
     VL6180X_X_NUCLEO_6180XA1(TwoWire *i2c, STMPE1600DigiOut *pin) : VL6180X(i2c, -1)
     {
